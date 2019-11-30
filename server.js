@@ -30,3 +30,15 @@ db.once('open', function() {
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// App set up
+app.use(logger('dev'));
+app.use(express.static('public'));
+app.use(body.urlencoded({extended: false}));
+app.use(method('_method'));
+app.engine('handlebars', bars({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+
+app.listen(port, function() {
+    console.log(`Listening on PORT ${port}`);
+});
