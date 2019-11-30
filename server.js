@@ -54,3 +54,37 @@ app.get('/', function(req, res) {
         }
     });
 });
+
+app.get('/scrape', function(req, res) {
+    request('https://www.thenewstribune.com/news/local/', function(error, response, html) {
+        const $ = cheerio.load(html);
+        const result = {};
+        $('div.story-body').each(function(i, element) {
+            let link = $(element).find('a').attr("href");
+            let title = $(element).find('h2.headline').text().trim();
+            let summary = $(element).find('p.summary').text().trim();
+            let img = $(element).parent().find('figure.media').find('img').attr('src');
+            result.link = link;
+            result.title = title;
+            if(summary) {
+                result.summary = summary;
+            }
+            if(img) {
+                result.img = img;
+            }
+            else {
+                result.img = $(element).find('.wide-thumb').find('img').attr('src');
+            };
+            const entry = new article(result);
+            article.find({title: result.title}, function(err, data) {
+                if (data.length === 0){
+                    entry.save(function(err, data) {
+                        if (err) throw err;
+                    });
+                }
+            });
+        });
+        console.log(`Scrape Finished`);
+        res.redirect('/');
+    });
+});
