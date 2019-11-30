@@ -42,3 +42,15 @@ app.set('view engine', 'handlebars');
 app.listen(port, function() {
     console.log(`Listening on PORT ${port}`);
 });
+
+// handlebar routes
+app.get('/', function(req, res) {
+    article.find({}, null, {sort: {created: -1}}, function(err, data) {
+        if(data.length === 0) {
+            res.render('placehoder', {message: `These aren't the articles you are looking for.... because there aren't any. Scrape some knees, my boy! Click on \"Scrape the News\"`});
+        }
+        else {
+            res.render('index', {articles: data});
+        }
+    });
+});
